@@ -1,5 +1,5 @@
 name: Parkour
-main: net.toolan.minecraft.Parkour
+main: net.toolan.plugin.Parkour
 version: 1.0
 commands:
    race:
