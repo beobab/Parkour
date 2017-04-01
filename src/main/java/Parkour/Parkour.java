@@ -1,4 +1,5 @@
 package Parkour;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -15,7 +16,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Parkour extends JavaPlugin {
     @Override
     public void onEnable() {
-        // TODO Insert logic to be performed when the plugin is enabled
+        Bukkit.getPluginManager().registerEvents(new ParkourListener(this), this);
+        this.getCommand("basic").setExecutor(new ParkourCommandExecutor(this));
     }
 
     @Override
