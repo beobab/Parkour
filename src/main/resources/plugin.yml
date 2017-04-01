@@ -1,3 +1,9 @@
 name: Parkour
 main: net.toolan.minecraft.Parkour
-versin: 1.0
+version: 1.0
+commands:
+   race:
+      description: This is the master command to manage or find races.
+      usage: /<command> [player]
+      permission: <plugin name>.basic
+      permission-message: You don't have <permission>
