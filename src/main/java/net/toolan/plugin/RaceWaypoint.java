@@ -13,7 +13,7 @@ public class RaceWaypoint {
 
     public boolean equals(RaceWaypoint other) {
         if (other == null) return false;
-        if (worldname != other.worldname) return false;
+        if (isWorldJump(other)) return false;
         if (location.getBlockX() != other.location.getBlockX()) return false;
         if (location.getBlockY() != other.location.getBlockY()) return false;
         if (location.getBlockZ() != other.location.getBlockZ()) return false;
@@ -28,9 +28,9 @@ public class RaceWaypoint {
 
         String[] data = wayPointKey.split("\\|");
         if (data.length > 0) worldName = data[0];
-        if (data.length > 1) x = Integer.getInteger(data[1]);
-        if (data.length > 2) y = Integer.getInteger(data[2]);
-        if (data.length > 3) z = Integer.getInteger(data[3]);
+        if (data.length > 1) x = Integer.parseInt(data[1]);
+        if (data.length > 2) y = Integer.parseInt(data[2]);
+        if (data.length > 3) z = Integer.parseInt(data[3]);
 
         return new RaceWaypoint(worldName, new Location(null, x, y, z));
     }
@@ -41,5 +41,17 @@ public class RaceWaypoint {
 
     public String WayPointKey() {
         return WayPointKey(worldname, location);
+    }
+
+    public boolean isWorldJump(RaceWaypoint other) {
+        return !worldname.equalsIgnoreCase(other.worldname);
+    }
+
+    public double distanceTo(RaceWaypoint other) {
+        if (isWorldJump(other)) return 0;
+        double dX = location.getBlockX() - other.location.getBlockX();
+        double dY = location.getBlockY() - other.location.getBlockY();
+        double dZ = location.getBlockZ() - other.location.getBlockZ();
+        return Math.sqrt(dX*dX + dY*dY + dZ*dZ);
     }
 }

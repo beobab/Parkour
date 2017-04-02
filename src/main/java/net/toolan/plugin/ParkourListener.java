@@ -1,5 +1,6 @@
 package net.toolan.plugin;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -9,8 +10,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -28,9 +27,28 @@ public class ParkourListener implements Listener {
 
 
     @EventHandler
-    public void onPlayerTeleportEvent(PlayerTeleportEvent event) {
-        plugin.getLogger().info(event.getCause().name());
+    public void onPlayerTeleportEvent(PlayerTeleportEvent e) {
+        plugin.getLogger().info(e.getCause().name());
         //new TeleportEvent(plugin, event.getPlayer(), event).raise();
+
+        Player player = e.getPlayer();
+        if (player == null) return;
+
+        UUID playerKey = player.getUniqueId();
+        RaceManager manager = plugin.getRaceManager();
+        RaceEntrant entrant = manager.getEntrant(playerKey);
+
+        if (entrant == null) return;
+
+        if (entrant.canTeleportToNextWaypoint()) return;
+
+        // Don't disqualify jumps back to last checkpoint.
+        Location to = e.getTo();
+        RaceWaypoint wayPoint = new RaceWaypoint(to.getWorld().getName(), to);
+        if (entrant.isCurrentWayPoint(wayPoint)) return;
+
+        player.sendMessage("Teleporting in a race is not allowed. You will need to restart.");
+        manager.endRace(playerKey);
     }
 
     @EventHandler
@@ -77,7 +95,9 @@ public class ParkourListener implements Listener {
 
         if (manager.isSettingUpRace(playerKey)) {
             // They went over another checkpoint.
-            manager.addWaypoint(playerKey, wayPointKey);
+            RaceWaypoint waypoint = manager.addWaypoint(playerKey, wayPointKey);
+            if (waypoint != null)
+                player.sendMessage("Added waypoint at " + wayPoint.WayPointKey());
             return;
         }
 

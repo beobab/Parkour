@@ -27,6 +27,8 @@ public class Race {
         return null;
     }
 
+    int WayPointCount() { return waypoints.size(); }
+
     List<String> WayPointKeys() {
         List<String> lst = new ArrayList<>();
         for (RaceWaypoint waypoint: waypoints) {
@@ -35,14 +37,41 @@ public class Race {
         return lst;
     }
 
-    public void addWayPoint(String waypointKey) {
+    public RaceWaypoint addWayPoint(String waypointKey) {
         RaceWaypoint end = getEnd();
         RaceWaypoint newPoint = RaceWaypoint.FromKey(waypointKey);
-        if (end == null)
-            waypoints.add(newPoint);
-        else if (!end.equals(newPoint)) {
-            waypoints.add(newPoint);
+        if (end == null) {
+            if (waypoints.add(newPoint)) return newPoint;
+        } else if (!end.equals(newPoint)) {
+            if (waypoints.add(newPoint)) return newPoint;
         }
+        return null;
+    }
+
+    public String toBrief() {
+        RaceWaypoint start = getStart();
+        return name + " starts at (" + Integer.toString(start.location.getBlockX()) + "," +
+                Integer.toString(start.location.getBlockY()) + "," +
+                Integer.toString(start.location.getBlockZ()) + ")";
+    }
+
+    public String toString() {
+        int nrJumps = 0;
+        double distance = 0.0;
+        RaceWaypoint start = getStart();
+        RaceWaypoint prev = start;
+        for (RaceWaypoint point : waypoints) {
+            if (point.isWorldJump(prev)) nrJumps++;
+            distance += point.distanceTo(prev);
+        }
+        return "Race " + name +
+                " starts at (" + Integer.toString(start.location.getBlockX()) + "," +
+                                 Integer.toString(start.location.getBlockY()) + "," +
+                                 Integer.toString(start.location.getBlockZ()) + ") and" +
+                " covers " + Integer.toString((int) distance) + " steps" +
+                " over " + Integer.toString(WayPointCount()) + " waypoints" +
+                (nrJumps == 0 ? "" : " between " + Integer.toString(nrJumps + 1) + " worlds") +
+                ".";
     }
 }
 

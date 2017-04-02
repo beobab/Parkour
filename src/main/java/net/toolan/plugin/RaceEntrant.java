@@ -60,4 +60,14 @@ public class RaceEntrant {
         if (currentWaypoint == null) return false;
         return (currentWaypoint.equals(race.getEnd()));
     }
+
+    public boolean isCurrentWayPoint(RaceWaypoint hit) {
+        RaceWaypoint currentWaypoint = race.getWaypoint(this.currentWaypoint);
+        if (currentWaypoint == null) {
+            // Not in a race. Exit as soon as possible.
+            return false;
+        }
+
+        return currentWaypoint.equals(hit);
+    }
 }
