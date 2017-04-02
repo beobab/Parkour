@@ -17,6 +17,11 @@ public class ParkourCommandExecutor implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("race")) {
+            if (args[0].equalsIgnoreCase("setup")) {
+
+            } else if (args[0].equalsIgnoreCase("finish")) {
+
+            }
             sender.sendMessage("Starting race.");
 
             return true;

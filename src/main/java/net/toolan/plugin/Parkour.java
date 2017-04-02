@@ -2,6 +2,9 @@ package net.toolan.plugin;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by jonathan on 01/04/2017.
  * race start name
@@ -14,10 +17,16 @@ import org.bukkit.plugin.java.JavaPlugin;
  *
  **/
 public class Parkour extends JavaPlugin {
+
+    private RaceManager _allRaces = null;
+    RaceManager getRaceManager() { return _allRaces; }
+
     @Override
     public void onEnable() {
+        _allRaces = new RaceManager(this);
+
         Bukkit.getPluginManager().registerEvents(new ParkourListener(this), this);
-        this.getCommand("basic").setExecutor(new ParkourCommandExecutor(this));
+        this.getCommand("race").setExecutor(new ParkourCommandExecutor(this));
     }
 
     @Override
