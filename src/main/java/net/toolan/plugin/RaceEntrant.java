@@ -1,5 +1,6 @@
 package net.toolan.plugin;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -7,6 +8,7 @@ import java.util.UUID;
 public class RaceEntrant {
     Race race;
     UUID playerKey;
+
 
     RaceEntrant(UUID playerKey, Race race) {
         this.playerKey = playerKey;
@@ -69,5 +71,12 @@ public class RaceEntrant {
         }
 
         return currentWaypoint.equals(hit);
+    }
+
+    public Location nextWayPointLocation() {
+        RaceWaypoint nextWaypoint = race.getWaypoint(this.currentWaypoint + 1);
+        if (nextWaypoint == null) return null;
+
+        return nextWaypoint.getLocation();
     }
 }

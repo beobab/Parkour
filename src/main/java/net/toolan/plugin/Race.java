@@ -23,7 +23,8 @@ public class Race {
     RaceWaypoint getEnd() { if (waypoints.isEmpty()) return null; return waypoints.get(waypoints.size() - 1); }
 
     RaceWaypoint getWaypoint(int index) {
-        if (waypoints.size() >= index) return waypoints.get(index);
+        if (index < 0) return null; // why would you do this?!
+        if (waypoints.size() > index) return waypoints.get(index);
         return null;
     }
 
@@ -56,6 +57,9 @@ public class Race {
     }
 
     public String toString() {
+        if (WayPointCount() == 0)
+            return "Race " + name + " has no waypoints.";
+
         int nrJumps = 0;
         double distance = 0.0;
         RaceWaypoint start = getStart();

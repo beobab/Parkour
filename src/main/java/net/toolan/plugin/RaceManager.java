@@ -1,5 +1,9 @@
 package net.toolan.plugin;
 
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+
 import java.util.*;
 
 /**
@@ -23,11 +27,11 @@ public class RaceManager {
     // WaypointKey -> Race Start positions.
     private Map<String, Race> _startpoints = new HashMap<>();
 
-    // Way to get waypoint to an entrant...
+    // The people who are currently in a race.
     private Map<UUID, RaceEntrant> _entrants = new HashMap<>();
 
-    // PlayerWaypointKey -> RaceEntrant. Added when a user starts a race.
-    private Map<String, RaceEntrant> _waypoints = new HashMap<>();
+    // Player -> WaypointKey -> RaceEntrant. Added when a user starts a race.
+    private Map<UUID, Map<String, RaceEntrant>> _waypoints = new HashMap<>();
 
 
     // ******************
@@ -67,6 +71,7 @@ public class RaceManager {
         return race;
     }
 
+    // Note that there is nothing stopping a race from completing even if it has been deleted.
     public Race deleteRace(String name) {
         Race race = findRaceNamed(name);
         if (race != null)
@@ -85,23 +90,41 @@ public class RaceManager {
         return _startpoints.containsKey(wayPointKey);
     }
 
+    // Is this player in an active race?
+    public boolean isPlayerRacing(UUID playerKey) {
+        return _entrants.containsKey(playerKey);
+    }
+
     // Player is starting a race!
-    public void startRace(UUID playerKey, String wayPointKey) {
-        Race race = _startpoints.get(wayPointKey);
+    public RaceEntrant startRace(UUID playerKey, String startWayPointKey) {
+        Race race = _startpoints.get(startWayPointKey);
+        if (race == null) return null;
 
         RaceEntrant entrant = new RaceEntrant(playerKey, race);
-        for (String waypointKey: race.WayPointKeys()) {
-            playerWayPointKey(playerKey, wayPointKey);
+        if (entrant == null) return null;
+
+        Map<String, RaceEntrant> waypointEntrant = new HashMap<>();
+        for (String wayPointKey: race.WayPointKeys()) {
+            waypointEntrant.put(wayPointKey, entrant);
         }
+
+        _waypoints.put(playerKey, waypointEntrant);
+        _entrants.put(playerKey, entrant);
+
+        return entrant;
     }
 
     public void endRace(UUID playerKey) {
-
+        _waypoints.remove(playerKey);
+        _entrants.remove(playerKey);
     }
 
     // Is the waypoint one that this player can trigger as part of this race.
     public boolean isActiveRaceWaypoint(UUID playerKey, String waypointKey) {
-        return _waypoints.containsKey(playerWayPointKey(playerKey, waypointKey));
+        Map<String, RaceEntrant> wayPoints = _waypoints.get(playerKey);
+        if (wayPoints == null) return false;
+
+        return wayPoints.containsKey(waypointKey);
     }
 
 
@@ -111,8 +134,6 @@ public class RaceManager {
 
 
     // Private methods.
-    private String playerWayPointKey(UUID playerKey, String wayPointKey) {return playerKey.toString() + "|" + wayPointKey; }
-
     private Race findRaceNamed(String name) {
         for (Race race : _allRaces) {
             if (race.name.equalsIgnoreCase(name)) return race;
@@ -130,4 +151,21 @@ public class RaceManager {
         }
     }
 
+    public Race NearestRace(RaceWaypoint temporary) {
+        if (temporary == null) return null;
+
+        Race nearest = null;
+        double distance = 0.0;
+        for (Race race : _allRaces) {
+            if (race.WayPointCount() > 1) {
+                RaceWaypoint start = race.getStart();
+                double toThisRace = temporary.distanceTo(start);
+                if (nearest == null || distance > toThisRace) {
+                    nearest = race;
+                    distance = toThisRace;
+                }
+            }
+        }
+        return nearest;
+    }
 }

@@ -54,4 +54,9 @@ public class RaceWaypoint {
         double dZ = location.getBlockZ() - other.location.getBlockZ();
         return Math.sqrt(dX*dX + dY*dY + dZ*dZ);
     }
+
+    // Used to set the compass.
+    public Location getLocation() {
+        return new Location(null, location.getBlockX() + 0.5, location.getBlockY() + 0.5, location.getBlockZ() + 0.5);
+    }
 }

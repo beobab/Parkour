@@ -47,7 +47,7 @@ public class ParkourListener implements Listener {
         RaceWaypoint wayPoint = new RaceWaypoint(to.getWorld().getName(), to);
         if (entrant.isCurrentWayPoint(wayPoint)) return;
 
-        player.sendMessage("Teleporting in a race is not allowed. You will need to restart.");
+        player.sendMessage("Teleporting in a race is not allowed! You have been disqualified.");
         manager.endRace(playerKey);
     }
 
@@ -101,25 +101,39 @@ public class ParkourListener implements Listener {
             return;
         }
 
-        if (manager.isActiveRaceWaypoint(playerKey, wayPointKey)) {
-            RaceEntrant entrant = manager.getEntrant(playerKey);
-            if (entrant.hitWayPoint(wayPoint)) {
-                if (entrant.hasWon()) {
-                    player.sendMessage("You finished the race!");
-                } else {
-                    player.sendMessage("Achieved waypoint " + Integer.toString(entrant.currentWaypoint));
+        if (manager.isPlayerRacing(playerKey)) {
+            // Currently racing. Check against the active waypoints.
+            if (manager.isActiveRaceWaypoint(playerKey, wayPointKey)) {
+                RaceEntrant entrant = manager.getEntrant(playerKey);
+                if (entrant.hitWayPoint(wayPoint)) {
+                    if (entrant.hasWon()) {
+                        manager.endRace(playerKey);
+                        player.sendMessage("You finished the race!");
+                    } else {
+                        player.sendMessage("Hit waypoint " + Integer.toString(entrant.currentWaypoint));
+                        if (!entrant.canTeleportToNextWaypoint()) {
+                            Location nextWayPoint = entrant.nextWayPointLocation();
+                            nextWayPoint.setWorld(player.getWorld());
+                            player.setCompassTarget(nextWayPoint);
+                        }
+                    }
                 }
             }
             return;
         }
 
+
+        // Not currently racing, but might be about to step on a start waypoint.
         if (manager.isRaceStartLocation(wayPointKey)) {
-            manager.startRace(playerKey, wayPointKey);
+            RaceEntrant entrant = manager.startRace(playerKey, wayPointKey);
             player.sendMessage("You started the race!");
+            if (!entrant.canTeleportToNextWaypoint()) {
+                Location nextWayPoint = entrant.nextWayPointLocation();
+                nextWayPoint.setWorld(player.getWorld());
+                player.setCompassTarget(nextWayPoint);
+            }
         }
+
     }
-
-
-
 
 }
