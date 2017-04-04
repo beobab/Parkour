@@ -3,11 +3,14 @@ package net.toolan.plugin;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.text.DecimalFormat;
 import java.util.UUID;
 
 public class RaceEntrant {
     Race race;
     UUID playerKey;
+    private long startTime = 0;
+    private long wayPointTime = 0;
 
 
     RaceEntrant(UUID playerKey, Race race) {
@@ -53,6 +56,9 @@ public class RaceEntrant {
         }
 
         // The successful case!
+        long now = System.currentTimeMillis();
+        if (this.startTime == 0) this.startTime = now;
+        this.wayPointTime = now - this.startTime;
         this.currentWaypoint++;
         return true;
     }
@@ -71,6 +77,21 @@ public class RaceEntrant {
         }
 
         return currentWaypoint.equals(hit);
+    }
+
+    private String milliSecondsToDisplay(long milliseconds) {
+        long now = System.currentTimeMillis();
+        double duration = ((double) milliseconds) / 1000.0;
+        DecimalFormat df = new DecimalFormat("#.00");
+        return df.format(duration);
+    }
+
+    public String WayPointTime() {
+        return milliSecondsToDisplay(this.wayPointTime);
+    }
+    public String RaceTime() {
+        long now = System.currentTimeMillis();
+        return milliSecondsToDisplay(now - startTime);
     }
 
     public Location nextWayPointLocation() {

@@ -36,6 +36,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
             if (args.length == 0) {
                 if (manager.isPlayerRacing(playerKey)) {
                     RaceEntrant entrant = manager.getEntrant(playerKey);
+                    sender.sendMessage("Racing for " + entrant.RaceTime() + " seconds, " + entrant.WayPointTime() + " seconds since last waypoint");
 
                 } else {
                     sender.sendMessage("You are not currently racing.");
@@ -59,7 +60,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
                     String name = ArgAt(args, 1, "");
                     manager.setupRace(playerKey, name);
                     sender.sendMessage("Activate levers, pressure plates and buttons to mark waypoints.");
-                    sender.sendMessage("Type &6/race finish&F after you have activated the last one.");
+                    sender.sendMessage("Type $6/race finish$F after you have activated the last one.");
                 }
 
             } else if (args[0].equalsIgnoreCase("end")) {
