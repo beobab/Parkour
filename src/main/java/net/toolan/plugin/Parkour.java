@@ -27,6 +27,8 @@ public class Parkour
 
     private Database<DatabaseStorageRaceV1> db = null;
 
+    //region ILogger interface ...
+
     @Override
     public void log(Level level, String message) {
         getLogger().log(level, message);
@@ -36,6 +38,8 @@ public class Parkour
     public void log(Level level, String message, Exception ex) {
         getLogger().log(level, message, ex);
     }
+
+    //endregion
 
     @Override
     public void onEnable() {
