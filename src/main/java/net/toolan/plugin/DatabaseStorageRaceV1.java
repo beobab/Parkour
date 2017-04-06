@@ -7,14 +7,16 @@ import java.util.List;
  * DTO class which can be populated from Database of the right class, and can store information back in the DB.
  */
 @Database.Table(name = "race")
-public class DatabaseStorageRaceV1 {
+public class DatabaseStorageRaceV1 implements Database.IStorable {
     @Database.PrimaryKey
-    String name;
+    public String name;
     @Database.Column(nullable = true)
-    String description;
+    public String description;
     @Database.Column
-    String worldname;
+    public String worldname;
 
     @Database.SubTable(name = "waypoint")
-    List<String> waypoints;
+    public List<String> waypoints;
+
+    public DatabaseStorageRaceV1 empty() { return new DatabaseStorageRaceV1();}
 }

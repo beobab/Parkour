@@ -41,11 +41,16 @@ public class Parkour
 
     //endregion
 
+    private void setupDB() {
+        String sqlitedb = getConfig().getString("SQLite.filename", "races.db");
+        db = new Database<>(new File(this.getDataFolder(), sqlitedb), this, new DatabaseStorageRaceV1());
+    }
+
     @Override
     public void onEnable() {
         _allRaces = new RaceManager(this);
 
-        db = new Database<>(new File("bob.db"), this, new DatabaseStorageRaceV1());
+
 
         Bukkit.getPluginManager().registerEvents(new ParkourListener(this), this);
         this.getCommand("race").setExecutor(new ParkourCommandExecutor(this));

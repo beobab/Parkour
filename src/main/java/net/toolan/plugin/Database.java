@@ -7,7 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -18,15 +20,21 @@ class Database<T> {
 
     // An empty example of the class you wish to store. To get round limitations of reflection.
     // Normally like this: Database db = new Database(f, l, new DatabaseStorageObject())
-    private final T _empty;
-    Database(File database, ILogger logger, T empty) {
+    private final IStorable<T> _empty;
+    Database(File database, ILogger logger, IStorable<T> empty) {
         _empty = empty;
-        _initialise(database, logger);
+        if (database != null) {
+            _initialise(database, logger);
+        }
     }
 
     public interface ILogger {
         void log(Level level, String message);
         void log(Level level, String message, Exception ex);
+    }
+
+    public interface IStorable<T> {
+        T empty();
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -50,6 +58,8 @@ class Database<T> {
         boolean nullable() default false;
     }
 
+    // If you want to see the sql that is sent to  sqlitedb on initial creation.
+    public String BuildTableSql(Class c) { return _buildTableSql(c); }
 
 
 
@@ -60,6 +70,14 @@ class Database<T> {
     private Boolean _tableExists = null;
     private String _primaryKeyName = null;
     private List<String> _columnNames = new ArrayList<>();
+
+    // In case _logger is null, we provide default behaviour.
+    private void log(Level level, String message) {
+        if (_logger != null) _logger.log(level, message);
+    }
+    private void log(Level level, String message, Exception ex) {
+        if (_logger != null) _logger.log(level, message, ex);
+    }
 
     private void _initialise(File database, ILogger logger) {
         _logger = logger;
@@ -79,6 +97,8 @@ class Database<T> {
                 ps.executeQuery();
             }
         });
+
+        EnsureTablesExist(_empty.getClass());
     }
 
     private Connection _getSqlConnection() {
@@ -99,17 +119,114 @@ class Database<T> {
     }
 
     private void _store(T object) {
-        EnsureTablesExist(_empty.getClass());
+
+
+//
+//        final String sql = "" + _buildListInsert(subTableName, values, columnName, String masterColumn, String masterCoumnName)
+//
+//        Query((Connection conn) -> {
+//            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+//                ps.execute();
+//            }
+//        });
     }
 
     private List<T> _retrieveAll() {
+        classDetail cd = getClassDetail();
+
+        final String sql = "SELECT * FROM " + cd.tableName;
+
+        Query((Connection conn) -> {
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        T item = _empty.empty();
+                        String primaryKeyName = "";
+                        String primaryKeyValue = "";
+
+                        for (Map.Entry<PrimaryKey, Field> entry : cd.pk.entrySet()) {
+                            Field f = entry.getValue();
+                            String name = f.getName();
+                            String value = rs.getString(name);
+
+                            f.set(item, value);
+
+                            primaryKeyName = name;
+                            primaryKeyValue = value;
+                        }
+
+                        for (Map.Entry<Column, Field> entry : cd.cols.entrySet()) {
+                            Field f = entry.getValue();
+                            String name = f.getName();
+                            f.set(item, rs.getString(name));
+                        }
+
+                        for (Map.Entry<SubTable, Field> entry : cd.subtables.entrySet()) {
+                            List<String> subItems = new ArrayList<>();
+                            Field f = entry.getValue();
+                            String name = f.getName();
+
+                            final String sqlT = "SELECT * FROM " + name + " WHERE " + primaryKeyName + "  = ?;";
+                            try(PreparedStatement psT = conn.prepareStatement(sqlT)) {
+                                psT.setString(1, primaryKeyValue);
+
+                                try (ResultSet rsT = psT.executeQuery()) {
+                                    while (rsT.next()) {
+                                        subItems.add(rsT.getString(primaryKeyName));
+                                    }
+                                }
+
+                                f.set(item, subItems);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
         EnsureTablesExist(_empty.getClass());
         return new ArrayList<T>();
     }
 
     private T _retrieve(String key) {
-        EnsureTablesExist(_empty.getClass());
+//        classDetail cd = getClassDetail();
+//
+//        Field field = _empty.getClass().getDeclaredField(fieldName);
+//        field.setAccessible(true);
+//        Object value = field.get(object);
         return null;
+    }
+
+    private String _buildListInsert(String tableName, List<String> values, String columnName, String masterColumn, String masterCoumnName) {
+        // masterColumn should be: "'door32' as 'name'"
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO '" + tableName + "'\n");
+        boolean isFirst = true;
+        for (String item : values) {
+            if (isFirst) {
+                sb.append("          SELECT '");
+                sb.append(masterColumn);
+                sb.append("' as '");
+                sb.append(masterCoumnName);
+                sb.append("', '");
+                sb.append(item);
+                sb.append("' AS '");
+                sb.append(columnName);
+                sb.append("'\n");
+
+                isFirst = false;
+
+            } else {
+                sb.append("UNION ALL SELECT '");
+                sb.append(masterColumn);
+                sb.append("', '");
+                sb.append(item);
+                sb.append("'\n");
+            }
+        }
+        sb.append(";");
+
+        return sb.toString();
     }
 
     private String _buildTableSql(Field f, String primaryKeyColumn) {
@@ -118,7 +235,7 @@ class Database<T> {
         sb.append("CREATE TABLE IF NOT EXISTS ");
         sb.append(t.name());
 
-        sb.append("( ");
+        sb.append(" ( ");
         sb.append(primaryKeyColumn);
         sb.append("`");
         sb.append(f.getName());
@@ -127,6 +244,45 @@ class Database<T> {
         sb.append(t.nullable() ? " NULL ); " : " NOT NULL );");
 
         return sb.toString();
+    }
+
+    private classDetail _classDetail;
+    private classDetail getClassDetail() {
+        if (_classDetail == null) _initialiseClassDetail(_empty.getClass());
+        return _classDetail;
+    }
+    private class classDetail {
+        public String tableName = "";
+        public Map<PrimaryKey, Field> pk = new HashMap<>();
+        public Map<Column, Field> cols = new HashMap<>();
+        public Map<SubTable, Field> subtables = new HashMap<>();
+    }
+
+    private classDetail _initialiseClassDetail(Class c) {
+        _classDetail = new classDetail();
+
+        Table table = ((Table) c.getAnnotation(Table.class));
+        String tableName = (table == null ? "" : table.name());
+        if (tableName.isEmpty()) {
+            tableName = c.getName().replaceFirst("DatabaseStorage", "");
+        }
+        _classDetail.tableName = tableName;
+
+        for (Field f : c.getDeclaredFields()) {
+            PrimaryKey pk = f.getAnnotation(PrimaryKey.class);
+            if (pk != null) {
+                _classDetail.pk.put(pk, f);
+            }
+            Column col = f.getAnnotation(Column.class);
+            if (col != null) {
+                _classDetail.cols.put(col, f);
+            }
+            SubTable t = f.getAnnotation(SubTable.class);
+            if (t != null) {
+                _classDetail.subtables.put(t, f);
+            }
+        }
+        return _classDetail;
     }
 
     private String _buildTableSql(Class c) {
@@ -161,7 +317,7 @@ class Database<T> {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE TABLE IF NOT EXISTS ");
         sb.append(tableName);
-        sb.append("( ");
+        sb.append(" ( ");
 
         sb.append(primaryKeyColumn);
         for (String s : otherColumns) {
