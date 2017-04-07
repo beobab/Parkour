@@ -54,6 +54,9 @@ public class Parkour
 
     @Override
     public void onEnable() {
+        // This should create the config directories.
+        saveDefaultConfig();
+
         setupDB();
 
         Bukkit.getPluginManager().registerEvents(new ParkourListener(this), this);

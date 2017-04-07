@@ -71,7 +71,7 @@ class Database<T> {
     private File _database = null;
     private Connection _connection = null;
     private ILogger _logger = null;
-    private Boolean _tableExists = null;
+    private Boolean _tableExists = false;
     private String _primaryKeyName = null;
     private List<String> _columnNames = new ArrayList<>();
 
@@ -455,7 +455,7 @@ class Database<T> {
     private void EnsureTablesExist(Class c) {
         // Does table exist?
         // If we already ran this, then yes. It's created. Otherwise check.
-        if (_tableExists) return;
+        if (_tableExists == true) return;
 
         final String sql = _buildTableSql(c);
 
