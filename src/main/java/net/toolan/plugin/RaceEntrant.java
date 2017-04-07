@@ -11,12 +11,16 @@ public class RaceEntrant {
     UUID playerKey;
     private long startTime = 0;
     private long wayPointTime = 0;
+    private long lastWayPointTime = 0;
 
 
     RaceEntrant(UUID playerKey, Race race) {
         this.playerKey = playerKey;
         this.race = race;
         this.currentWaypoint = 0;
+        this.startTime = System.currentTimeMillis();
+        this.wayPointTime = startTime;
+        this.lastWayPointTime = startTime;
     }
 
     int currentWaypoint = 0;
@@ -57,8 +61,8 @@ public class RaceEntrant {
 
         // The successful case!
         long now = System.currentTimeMillis();
-        if (this.startTime == 0) this.startTime = now;
-        this.wayPointTime = now - this.startTime;
+        this.lastWayPointTime = this.wayPointTime;
+        this.wayPointTime = now;
         this.currentWaypoint++;
         return true;
     }
@@ -87,11 +91,11 @@ public class RaceEntrant {
     }
 
     public String WayPointTime() {
-        return milliSecondsToDisplay(this.wayPointTime);
+        return milliSecondsToDisplay(this.wayPointTime - this.lastWayPointTime);
     }
     public String RaceTime() {
         long now = System.currentTimeMillis();
-        return milliSecondsToDisplay(now - startTime);
+        return milliSecondsToDisplay(now - this.startTime);
     }
 
     public Location nextWayPointLocation() {

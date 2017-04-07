@@ -108,9 +108,10 @@ public class ParkourListener implements Listener {
                 if (entrant.hitWayPoint(wayPoint)) {
                     if (entrant.hasWon()) {
                         manager.endRace(playerKey);
-                        player.sendMessage("You finished the race!");
+                        player.sendMessage("You finished the race in " + entrant.RaceTime() + " seconds.");
                     } else {
                         player.sendMessage("Hit waypoint " + Integer.toString(entrant.currentWaypoint));
+                        player.sendMessage("Racing for " + entrant.RaceTime() + " seconds, " + entrant.WayPointTime() + " seconds since last waypoint");
                         if (!entrant.canTeleportToNextWaypoint()) {
                             Location nextWayPoint = entrant.nextWayPointLocation();
                             nextWayPoint.setWorld(player.getWorld());

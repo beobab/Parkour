@@ -118,6 +118,7 @@ public class RaceManager {
         _waypoints.put(playerKey, waypointEntrant);
         _entrants.put(playerKey, entrant);
 
+
         return entrant;
     }
 

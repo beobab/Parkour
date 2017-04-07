@@ -1,5 +1,6 @@
 package net.toolan.plugin;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -44,6 +45,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
                     Race race = manager.NearestRace(tempWaypoint);
                     if (race == null) {
                         sender.sendMessage("There are no races set up on this world.");
+                        sender.sendMessage("Type " + ChatColor.BLUE + "/race start" + ChatColor.WHITE + " to set one up");
                     } else {
                         sender.sendMessage("Nearest race is " + race.name + ". Setting compass to nearest race start.");
                         Location nextWayPoint = race.getStart().getLocation();
@@ -60,7 +62,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
                     String name = ArgAt(args, 1, "");
                     manager.setupRace(playerKey, name);
                     sender.sendMessage("Activate levers, pressure plates and buttons to mark waypoints.");
-                    sender.sendMessage("Type $6/race finish$F after you have activated the last one.");
+                    sender.sendMessage("Type " + ChatColor.BLUE + "/race end" + ChatColor.WHITE + " after you have activated the last one.");
                 }
 
             } else if (args[0].equalsIgnoreCase("end")) {
