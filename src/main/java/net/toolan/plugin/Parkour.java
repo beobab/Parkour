@@ -25,7 +25,7 @@ public class Parkour
     private RaceManager _allRaces = null;
     RaceManager getRaceManager() { return _allRaces; }
 
-    private Database<DatabaseStorageRaceV1> db = null;
+    private Database<DatabaseStorageRaceV1> _db = null;
 
     //region ILogger interface ...
 
@@ -43,14 +43,18 @@ public class Parkour
 
     private void setupDB() {
         String sqlitedb = getConfig().getString("SQLite.filename", "races.db");
-        db = new Database<>(new File(this.getDataFolder(), sqlitedb), this, new DatabaseStorageRaceV1());
+        _db = new Database<>(new File(this.getDataFolder(), sqlitedb), this, new DatabaseStorageRaceV1());
+
+        _allRaces = new RaceManager(this);
+        _db.RetrieveAll().stream()
+                .map(DatabaseStorageRaceV1::toRace)
+                .forEach((race) -> _allRaces.storageAddRaceFromStorage(race));
+        _allRaces.storageDoneAddingRaces();
     }
 
     @Override
     public void onEnable() {
-        _allRaces = new RaceManager(this);
-
-
+        setupDB();
 
         Bukkit.getPluginManager().registerEvents(new ParkourListener(this), this);
         this.getCommand("race").setExecutor(new ParkourCommandExecutor(this));
@@ -58,6 +62,8 @@ public class Parkour
 
     @Override
     public void onDisable() {
-        // TODO Insert logic to be performed when the plugin is disabled
+        _allRaces.storageGetAllRaces().stream()
+                .map(DatabaseStorageRaceV1::fromRace)
+                .forEach((dsr) -> _db.Store(dsr));
     }
 }

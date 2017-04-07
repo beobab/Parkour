@@ -58,6 +58,10 @@ class Database<T> {
         boolean nullable() default false;
     }
 
+    public void Store(T object) { _store(object); }
+    public List<T> RetrieveAll() { return _retrieveAll(); }
+
+
     // If you want to see the sql that is sent to  sqlitedb on initial creation.
     public String BuildTableSql(Class c) { return _buildTableSql(c); }
 
@@ -119,20 +123,127 @@ class Database<T> {
     }
 
     private void _store(T object) {
+        classDetail cd = getClassDetail();
+
+        List<String> columns = new ArrayList<>();
+
+        for (Map.Entry<PrimaryKey, Field> entry : cd.pk.entrySet()) {
+            Field f = entry.getValue();
+            String name = f.getName();
+            columns.add(name);
+        }
+
+        for (Map.Entry<Column, Field> entry : cd.cols.entrySet()) {
+            Field f = entry.getValue();
+            String name = f.getName();
+            columns.add(name);
+        }
+
+        final String sql = "INSERT OR REPLACE INTO " + cd.tableName + " (" + _encase(columns) + ") VALUES (" + _enquestion(columns) + ");";
+
+        Query((Connection conn) -> {
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                int i = 0;
+                String primaryKeyName = "";
+                String primaryKeyValue = "";
+
+                for (Map.Entry<PrimaryKey, Field> entry : cd.pk.entrySet()) {
+                    Field f = entry.getValue();
+                    String name = f.getName();
+
+                    String value = (String) f.get(object);
+                    ps.setString(i++, value);
+
+                    primaryKeyName = name;
+                    primaryKeyValue = value;
+                }
+
+                for (Map.Entry<Column, Field> entry : cd.cols.entrySet()) {
+                    Field f = entry.getValue();
+
+                    String value = (String) f.get(object);
+                    ps.setString(i++, value);
+                }
+
+                ps.execute();
 
 
-//
-//        final String sql = "" + _buildListInsert(subTableName, values, columnName, String masterColumn, String masterCoumnName)
-//
-//        Query((Connection conn) -> {
-//            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-//                ps.execute();
-//            }
-//        });
+                for (Map.Entry<SubTable, Field> entry : cd.subtables.entrySet()) {
+                    Field f = entry.getValue();
+                    String fieldName = f.getName();
+                    String tableName = entry.getKey().name();
+
+                    List<String> values = new ArrayList<>();
+
+                    Object obj = f.get(object);
+                    // Check it's an ArrayList
+                    if (obj instanceof ArrayList<?>) {
+                        // Get the List.
+                        ArrayList<?> al = (ArrayList<?>) obj;
+                        if (al.size() > 0) {
+                            // Iterate.
+                            for (int j = 0; j < al.size(); j++) {
+                                // Still not enough for a type.
+                                Object o = al.get(j);
+                                if (o instanceof String) {
+                                    // Here we go!
+                                    String v = (String) o;
+                                    // use v.
+                                    values.add(v);
+                                }
+                            }
+                        }
+                    }
+
+
+                    final String sqlT = _buildListInsert(tableName, values, fieldName, primaryKeyValue, primaryKeyName);
+                    try(PreparedStatement psT = conn.prepareStatement(sqlT)) {
+                        psT.execute();
+                    }
+                }
+            }
+        });
+    }
+
+    // put a question mark instead of all the values, and comma separate them.
+    private String _enquestion(List<String> lst) {
+        StringBuilder sb = new StringBuilder();
+        boolean prependComma = false;
+        for (String item : lst) {
+            if (prependComma) {
+                sb.append(", ");
+            } else {
+                prependComma = true;
+            }
+
+            sb.append("?");
+        }
+        return sb.toString();
+    }
+
+    // put quotes round all the values, and comma separate them.
+    private String _encase(List<String> lst) {
+        StringBuilder sb = new StringBuilder();
+        boolean prependComma = false;
+        for (String item : lst) {
+            if (prependComma) {
+                sb.append(", ");
+            } else {
+                prependComma = true;
+            }
+
+            sb.append("`");
+            sb.append(item);
+            sb.append("`");
+        }
+        return sb.toString();
     }
 
     private List<T> _retrieveAll() {
         classDetail cd = getClassDetail();
+
+        List<T> lst = new ArrayList<>();
 
         final String sql = "SELECT * FROM " + cd.tableName;
 
@@ -179,13 +290,14 @@ class Database<T> {
                                 f.set(item, subItems);
                             }
                         }
+
+                        lst.add(item);
                     }
                 }
             }
         });
 
-        EnsureTablesExist(_empty.getClass());
-        return new ArrayList<T>();
+        return lst;
     }
 
     private T _retrieve(String key) {

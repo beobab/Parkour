@@ -33,6 +33,13 @@ public class RaceManager {
     // Player -> WaypointKey -> RaceEntrant. Added when a user starts a race.
     private Map<UUID, Map<String, RaceEntrant>> _waypoints = new HashMap<>();
 
+    // ********************
+    // DB Storage of races.
+    // ********************
+
+    public List<Race> storageGetAllRaces() { return _allRaces; }
+    public void storageAddRaceFromStorage(Race race) { _allRaces.add(race); }
+    public void storageDoneAddingRaces() { refreshRaceStarts(); }
 
     // ******************
     // Setting up a race.
