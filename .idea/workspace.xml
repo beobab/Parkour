@@ -7,9 +7,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b8bf0ba0-1de3-4a3f-b051-e95ca898f95b" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/dbnavigator.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/database.sql" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/META-INF/MANIFEST.MF" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/artifacts/Parkour_jar/Parkour.jar" afterPath="$PROJECT_DIR$/out/artifacts/Parkour_jar/Parkour.jar" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/net/toolan/plugin/Database$classDetail.class" afterPath="$PROJECT_DIR$/target/classes/net/toolan/plugin/Database$classDetail.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/net/toolan/plugin/Database.class" afterPath="$PROJECT_DIR$/target/classes/net/toolan/plugin/Database.class" />
@@ -23,15 +20,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/test-classes/net/toolan/plugin/RaceTest.class" afterPath="$PROJECT_DIR$/target/test-classes/net/toolan/plugin/RaceTest.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/test-classes/net/toolan/plugin/RaceWaypointTest.class" afterPath="$PROJECT_DIR$/target/test-classes/net/toolan/plugin/RaceWaypointTest.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/Database.java" afterPath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/Database.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/Parkour.java" afterPath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/Parkour.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/ParkourCommandExecutor.java" afterPath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/ParkourCommandExecutor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/ParkourListener.java" afterPath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/ParkourListener.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/Race.java" afterPath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/Race.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/RaceEntrant.java" afterPath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/RaceEntrant.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/RaceManager.java" afterPath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/RaceManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/RaceWaypoint.java" afterPath="$PROJECT_DIR$/src/main/java/net/toolan/plugin/RaceWaypoint.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/plugin.yml" afterPath="$PROJECT_DIR$/src/main/resources/plugin.yml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/plugin.yml" afterPath="$PROJECT_DIR$/target/classes/plugin.yml" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -82,8 +70,8 @@
       <file leaf-file-name="Race.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/toolan/plugin/Race.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="35" column="44" lean-forward="true" selection-start-line="35" selection-start-column="44" selection-end-line="35" selection-end-column="44" />
+            <state relative-caret-position="310">
+              <caret line="50" column="0" lean-forward="true" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -1041,7 +1029,14 @@
       <option name="project" value="LOCAL" />
       <updated>1491605967959</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Added SQLite code which creates a database from a class.">
+      <created>1491770899235</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1491770899235</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1398,6 +1393,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="285">
           <caret line="23" column="1" lean-forward="true" selection-start-line="23" selection-start-column="1" selection-end-line="23" selection-end-column="1" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1631,8 +1627,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/toolan/plugin/Race.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="35" column="44" lean-forward="true" selection-start-line="35" selection-start-column="44" selection-end-line="35" selection-end-column="44" />
+        <state relative-caret-position="310">
+          <caret line="50" column="0" lean-forward="true" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
           <folding />
         </state>
       </provider>
