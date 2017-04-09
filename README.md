@@ -30,4 +30,4 @@ If you are in a race, this will tell you information about the current race, inc
 how long you've been racing, and the time since the last waypoint. Your compass will 
 already be pointing to the next waypoint.
 
-[Download just the plugin|blob/master/out/artifacts/Parkour_jar/Parkour.jar]
+[Download just the plugin](blob/master/out/artifacts/Parkour_jar/Parkour.jar)
