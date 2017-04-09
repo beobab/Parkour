@@ -98,6 +98,13 @@ public class RaceEntrant {
         return milliSecondsToDisplay(now - this.startTime);
     }
 
+    public Location currentWayPointLocation() {
+        RaceWaypoint currentWaypoint = race.getWaypoint(this.currentWaypoint);
+        if (currentWaypoint == null) return null;
+
+        return currentWaypoint.getLocation();
+    }
+
     public Location nextWayPointLocation() {
         RaceWaypoint nextWaypoint = race.getWaypoint(this.currentWaypoint + 1);
         if (nextWaypoint == null) return null;

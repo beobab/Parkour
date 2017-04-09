@@ -1,5 +1,6 @@
 package net.toolan.plugin;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -28,7 +29,7 @@ public class ParkourListener implements Listener {
 
     @EventHandler
     public void onPlayerTeleportEvent(PlayerTeleportEvent e) {
-        plugin.getLogger().info(e.getCause().name());
+        //plugin.getLogger().info(e.getCause().name());
         //new TeleportEvent(plugin, event.getPlayer(), event).raise();
 
         Player player = e.getPlayer();
@@ -95,10 +96,16 @@ public class ParkourListener implements Listener {
 
         if (manager.isSettingUpRace(playerKey)) {
             // They went over another checkpoint.
-            RaceWaypoint waypoint = manager.addWaypoint(playerKey, wayPointKey);
-            if (waypoint != null)
-                player.sendMessage("Added waypoint at " + wayPoint.WayPointKey());
+            if (manager.isRaceStartLocation(wayPointKey)) {
+                player.sendMessage(ChatColor.RED + "This is already a start location for another race.");
+            } else {
+                RaceWaypoint waypoint = manager.addWaypoint(playerKey, wayPointKey);
+                if (waypoint != null) {
+                    player.sendMessage("Added waypoint at " + wayPoint.DisplayWayPointKey());
+                }
+            }
             return;
+
         }
 
         if (manager.isPlayerRacing(playerKey)) {
@@ -110,8 +117,9 @@ public class ParkourListener implements Listener {
                         manager.endRace(playerKey);
                         player.sendMessage("You finished the race in " + entrant.RaceTime() + " seconds.");
                     } else {
-                        player.sendMessage("Hit waypoint " + Integer.toString(entrant.currentWaypoint));
-                        player.sendMessage("Racing for " + entrant.RaceTime() + " seconds, " + entrant.WayPointTime() + " seconds since last waypoint");
+                        player.sendMessage("Waypoint " + ChatColor.AQUA + Integer.toString(entrant.currentWaypoint) + ChatColor.WHITE +
+                                            " time: " + ChatColor.BLUE + entrant.WayPointTime() + ChatColor.WHITE + " seconds," +
+                                            " Total: " + ChatColor.YELLOW + entrant.RaceTime() + ChatColor.WHITE + " seconds.");
                         if (!entrant.canTeleportToNextWaypoint()) {
                             Location nextWayPoint = entrant.nextWayPointLocation();
                             nextWayPoint.setWorld(player.getWorld());

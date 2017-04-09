@@ -6,10 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -144,7 +141,7 @@ class Database<T> {
         Query((Connection conn) -> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
-                int i = 0;
+                int i = 1;
                 String primaryKeyName = "";
                 String primaryKeyValue = "";
 
@@ -168,13 +165,17 @@ class Database<T> {
 
                 ps.execute();
 
-
+                List<String> values = new ArrayList<>();
                 for (Map.Entry<SubTable, Field> entry : cd.subtables.entrySet()) {
                     Field f = entry.getValue();
                     String fieldName = f.getName();
                     String tableName = entry.getKey().name();
 
-                    List<String> values = new ArrayList<>();
+                    String deleteSql = "DELETE FROM " + tableName + " WHERE " + primaryKeyName + " = ?";
+                    try(PreparedStatement psT = conn.prepareStatement(deleteSql)) {
+                        psT.setString(1, primaryKeyValue);
+                        psT.execute();
+                    }
 
                     Object obj = f.get(object);
                     // Check it's an ArrayList
@@ -195,7 +196,6 @@ class Database<T> {
                             }
                         }
                     }
-
 
                     final String sqlT = _buildListInsert(tableName, values, fieldName, primaryKeyValue, primaryKeyName);
                     try(PreparedStatement psT = conn.prepareStatement(sqlT)) {
@@ -274,16 +274,17 @@ class Database<T> {
 
                         for (Map.Entry<SubTable, Field> entry : cd.subtables.entrySet()) {
                             List<String> subItems = new ArrayList<>();
+                            String subTableName = entry.getKey().name();
                             Field f = entry.getValue();
                             String name = f.getName();
 
-                            final String sqlT = "SELECT * FROM " + name + " WHERE " + primaryKeyName + "  = ?;";
+                            final String sqlT = "SELECT * FROM " + subTableName + " WHERE " + primaryKeyName + "  = ?;";
                             try(PreparedStatement psT = conn.prepareStatement(sqlT)) {
                                 psT.setString(1, primaryKeyValue);
 
                                 try (ResultSet rsT = psT.executeQuery()) {
                                     while (rsT.next()) {
-                                        subItems.add(rsT.getString(primaryKeyName));
+                                        subItems.add(rsT.getString(name));
                                     }
                                 }
 
@@ -458,11 +459,14 @@ class Database<T> {
         if (_tableExists == true) return;
 
         final String sql = _buildTableSql(c);
+        final String[] sqlItems = sql.split(";");
 
         Query((Connection conn) -> {
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.execute();
-            }
+            for(String sqlItem : sqlItems) {
+                try (PreparedStatement ps = conn.prepareStatement(sqlItem)) {
+                    ps.execute();
+                }
+            };
         });
 
         // Yes.

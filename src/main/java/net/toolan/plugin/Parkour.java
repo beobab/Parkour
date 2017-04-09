@@ -3,8 +3,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -65,7 +63,7 @@ public class Parkour
 
     @Override
     public void onDisable() {
-        _allRaces.storageGetAllRaces().stream()
+        _allRaces.getAllRaces().stream()
                 .map(DatabaseStorageRaceV1::fromRace)
                 .forEach((dsr) -> _db.Store(dsr));
     }

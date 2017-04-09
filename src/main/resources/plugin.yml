@@ -2,8 +2,36 @@ name: Parkour
 main: net.toolan.plugin.Parkour
 version: 1.0
 commands:
-   race:
-      description: This is the master command to manage or find races.
-      usage: /<command> [player]
-      permission: <plugin name>.basic
-      permission-message: You don't have <permission>
+  race:
+    description: This is the master command to manage or find races. If you
+    usage: |
+      Use /help <command> [subcommand] for more information
+      /<command> - Sets your compass to point to the nearest race or tells you how long you've been racing.
+      /<command> list [page] - Lists races set up on this server.
+      /<command> info [name] - Show race detail.
+      /<command> back - Teleport back to last waypoint activated.
+      /<command> start - Sets up a new race.
+      /<command> end - Ends setup of a new race.
+    permission: <plugin name>.basic
+    permission-message: You don't have <permission>
+  race list:
+    description: Lists all the races set up on this server.
+    usage: |
+      /<command> - Shows the first page of races.
+      /<command> [page] - Shows specified page of races.
+  race info:
+    description: Displays details about a race, name, distance, etc..
+    usage: /<command> name
+  race back:
+    description: Teleports you back to the last waypoint you successfully activated, or the start of the race if you haven't activated any waypoints yet.
+    usage: /<command>
+  race start:
+    description: Starts a new race. The first plate, lever or button that you activate after this will mark the
+                 start of the race. Subsequent activations will mark waypoints. Call /race end as soon as
+                 you have activated the last waypoint (the finish line).
+    usage: |
+      /<command> - Creates a generic race named race1, race2, etc..
+      /<command> [name] - Creates a named race.
+  race end:
+    description: Finishes a race. The last waypoint you activated will be the finish line.
+    usage: /<command>

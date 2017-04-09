@@ -37,7 +37,14 @@ public class RaceManager {
     // DB Storage of races.
     // ********************
 
-    public List<Race> storageGetAllRaces() { return _allRaces; }
+    public List<Race> getAllRaces() { return _allRaces; }
+    public Race getRace(String name) {
+        for (Race race : _allRaces) {
+            if (race.name.equalsIgnoreCase(name))
+                return race;
+        }
+        return null;
+    }
     public void storageAddRaceFromStorage(Race race) { _allRaces.add(race); }
     public void storageDoneAddingRaces() { refreshRaceStarts(); }
 
@@ -69,6 +76,9 @@ public class RaceManager {
     // Adding a waypoint during setup.
     public RaceWaypoint addWaypoint(UUID playerKey, String waypointKey) {
         Race race = _setups.get(playerKey);
+        if (race == null) return null;
+        // You can't add a start waypoint that is already the start of another race.
+        if (race.WayPointCount() == 0 && isRaceStartLocation(waypointKey)) return null;
         return race.addWayPoint(waypointKey);
     }
 

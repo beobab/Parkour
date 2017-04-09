@@ -1,6 +1,8 @@
 package net.toolan.plugin;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 
 public class RaceWaypoint {
     public String worldname;
@@ -43,6 +45,14 @@ public class RaceWaypoint {
         return WayPointKey(worldname, location);
     }
 
+    public static String DisplayWayPointKey(String worldName, Location location) {
+        return "(" + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + ") in " + worldName + ".";
+    }
+
+    public String DisplayWayPointKey() {
+        return DisplayWayPointKey(worldname, location);
+    }
+
     public boolean isWorldJump(RaceWaypoint other) {
         return !worldname.equalsIgnoreCase(other.worldname);
     }
@@ -57,6 +67,7 @@ public class RaceWaypoint {
 
     // Used to set the compass.
     public Location getLocation() {
-        return new Location(null, location.getBlockX() + 0.5, location.getBlockY() + 0.5, location.getBlockZ() + 0.5);
+        World world = Bukkit.getWorld(worldname);
+        return new Location(world, location.getBlockX() + 0.5, location.getBlockY() + 0.5, location.getBlockZ() + 0.5);
     }
 }

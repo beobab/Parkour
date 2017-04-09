@@ -53,7 +53,8 @@ public class Race {
         RaceWaypoint start = getStart();
         return name + " starts at (" + Integer.toString(start.location.getBlockX()) + "," +
                 Integer.toString(start.location.getBlockY()) + "," +
-                Integer.toString(start.location.getBlockZ()) + ")";
+                Integer.toString(start.location.getBlockZ()) + ") in " +
+                start.worldname;
     }
 
     public String toString() {
@@ -67,13 +68,14 @@ public class Race {
         for (RaceWaypoint point : waypoints) {
             if (point.isWorldJump(prev)) nrJumps++;
             distance += point.distanceTo(prev);
+            prev = point;
         }
         return "Race " + name +
                 " starts at (" + Integer.toString(start.location.getBlockX()) + "," +
                                  Integer.toString(start.location.getBlockY()) + "," +
                                  Integer.toString(start.location.getBlockZ()) + ") and" +
                 " covers " + Integer.toString((int) distance) + " steps" +
-                " over " + Integer.toString(WayPointCount()) + " waypoints" +
+                " over " + Integer.toString(WayPointCount() - 2) + " waypoints" +
                 (nrJumps == 0 ? "" : " between " + Integer.toString(nrJumps + 1) + " worlds") +
                 ".";
     }
